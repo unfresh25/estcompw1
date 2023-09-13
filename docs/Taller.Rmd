@@ -1,0 +1,337 @@
+---
+title: "Estadística computacional  Semana 1"
+description: |
+  Solución a ejercicios de Estadística Computacional semana 1, de la Maestría en Estadística Aplicada   de la Universidad del Norte.
+author:
+  - name: Jorge Borja
+    url: https://unfresh25.pythonanywhere.com/
+    affiliation: Universidad del Norte
+    affiliation_url: https://uninorte.edu.co/
+date: "`r Sys.Date()`"
+output: 
+  distill::distill_article:
+    theme: style.css
+    toc: true
+    toc_depth: 1
+    toc_float: true
+site: distill::distill_website
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE, out.width = 1200)
+
+file.create(".nojekyll")
+
+library(ggplot2)
+library(dplyr)
+library(gganimate)
+library(gifski)
+library(png)
+library(installr)
+library(rmarkdown)
+```
+
+```{r xaringan-panelset, echo=FALSE}
+xaringanExtra::use_panelset()
+```
+
+```{css echo=FALSE}
+.panelset {
+   --panel-tab-active-border-color: #4F709C;
+}
+```
+
+
+# Ejercicio 1. Franquicia de Stars Wars 
+
+Analizarás las cifras de taquilla de la franquicia de Star Wars. En el editor se definen tres vectores de las 3 primeras películas de Star Wars, las componentes indica el ingreso de las taquillas de EEUU y por fuera de EEUU.
+
+```{r vectors, class.codeflow}
+new_hope <- c(460.998, 314.4)
+empire_strikes <- c(290.475, 247.900)
+return_jedi <- c(309.306, 165.8)
+```
+
+## 1. Construye una matriz llamada *star_wars_matrix* de 2 × 3 que combine los 3 vectores.
+```{r matrix, class.codeflow}
+star_wars_matrix <- matrix(data = c(new_hope, empire_strikes, return_jedi), nrow = 2, ncol = 3)
+```
+```{r j1a, echo=FALSE}
+star_wars_matrix
+```
+
+## 2. Renombra las filas ("US","non-US") y columnas ("A New Hope", "The empire Strikes Back","Return of the Jedi"). Use rownames y colnames.
+```{r rename, class.codeflow}
+rownames(star_wars_matrix) <- c("US", "non-US")
+colnames(star_wars_matrix) <- c("A New Hope", "The empire Strikes Back", "Return of the Jedi")
+```
+```{r j1b, echo=FALSE}
+star_wars_matrix
+```
+
+## 3. Calcule las cifras de la taquilla mundial de las tres películas y póngalas en el vector llamado `worldwide_vector`.
+```{r mundial, class.codeflow}
+worldwide_vector <- colSums(star_wars_matrix)
+```
+```{r j1c, echo=FALSE}
+worldwide_vector
+```
+
+## 4. Añade *worldwide_vector* como una nueva fila a la matriz *star_wars_matrix* y al resultado le asignas el nombre *all_wars_matrix*.
+```{r all matrix, class.codeflow}
+all_wars_matrix <- rbind(star_wars_matrix, worldwide_vector)
+```
+```{r rename2, echo=FALSE}
+rownames(all_wars_matrix) <- c("US", "non-US", "Worldwide Box Office")
+all_wars_matrix
+```
+
+## 5. Selecciona los ingresos no estadosunidenses de las películas y almacénalas como *non_us_all*. Además, calcule el promedio
+```{r non-us, class.codeflow}
+non_us_all <- all_wars_matrix[2, ]
+```
+```{r j1e, echo=FALSE}
+non_us_all
+```
+```{r mean, class.codeflow}
+mean(non_us_all)
+```
+
+# Ejercicio 2. El sistema solar
+
+El sistema solar está dado por 
+
+```{r vectors2, class.codeflow}
+name <- c("Mercury", "Venus", "Earth", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune")
+type <- c("Terrestrial planet", "Terrestrial planet", "Terrestrial planet", "Terrestrial planet", "Gas giant", "Gas giant", "Gas giant", "Gas giant")
+diameter <- c(0.382, 0.949, 1, 0.532, 11.209, 9.449, 4.007, 3.883)
+rotation <- c(58.64, -243.02, 1, 1.03, 0.41, 0.43, -0.72, 0.67)
+rings <- c(FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE)
+```
+
+Crea el marco de datos (*data.frame*), asignelo a *planets_df* y usa *str()* para ver la estructura.
+
+```{r planets_df, class.codeflow}
+planets_df <- data.frame(cbind(name, type, diameter, rotation, rings))
+```
+```{r j2a, echo=FALSE, layout="l-body-outset"}
+paged_table(planets_df)
+```
+
+## 1. Selecciona el diámetro del planeta Mercurio y todos los datos del planeta Marte.
+```{r diam, class.codeflow}
+planets_df[1, 3]
+
+planets_df[4, ]
+```
+
+## 2. Seleccione e imprima los 5 primeros valores de la variable *diameter* de *planets_df*.
+```{r fivediam, class.codeflow}
+paged_table(data.frame(head(planets_df[, 3], 5)))
+```
+
+## 3. Escriba 3 formas de seleccionar la variable *rings* de *planets_df* y asígnelo a *rings_vector*.
+```{r ways, class.codeflow}
+planets_df$rings
+planets_df[, 5]
+planets_df["rings"]
+
+rings_vector <- planets_df["rings"]
+```
+
+## 4. Selecciona todos los planetas que tienen anillos. Use *rings_vector*.
+```{r hasring, class.codeflow}
+planets_df[rings_vector == TRUE, ]
+```
+
+## 5. Utilice *subset()* en *planets_df* para seleccionar los planetas que tienen un diámetro menor que la Tierra. Como la variable diámetro es una medida relativa del diámetro del planeta con respecto al de la Tierra, su condición es *diameter < 1*.
+```{r diameter, class.codeflow}
+subset(planets_df, diameter < 1)
+```
+
+## 6. Ordena de menor a mayor todos los planetas por *diameter*.
+```{r sort, class.codeflow}
+planets_df[order(diameter), ]
+```
+
+# Ejercicio 3. Cine
+
+Siendo un gran aficionado al cine, decides empezar a almacenar información sobre buenas películas, con la ayuda de listas. Crea el código en el editor y asígnala a *sp_man_no_way_home_list*, contiene tres elementos
+
+```{r vectors 3, collapse=TRUE}
+mov <- "Spider-Man: No Way Home"
+act <- c("Tom Holland", "Zendaya", "Benedict Cumberbatch", "Jacob Batalon", "Jamie Foxx")
+
+score <- c(6, 10, 7, 1)
+
+source <- c("https://www.imdb.com/review/rw8339340/", "https://www.imdb.com/review/rw7714213/", "https://www.imdb.com/review/rw8087664/" , "https://www.imdb.com/review/rw7746207/")
+
+review <- c("I'm no fan of the SPIDER-MAN films with Tom Holland", "What cinemas were made for.", "It was ok.", "Way overrated, probably because of all the characters from the other movies.")
+
+rev <- data.frame(cbind(score, source, review))
+```
+
+```{r j3b, echo=FALSE}
+colnames(rev) <- c("Score", "Source", "Review")
+```
+
+``` {r list}
+sp_man_no_way_home_list <- list(moviename = mov, actors = act, reviews = rev)
+```
+
+```{r j3a, echo=FALSE}
+sp_man_no_way_home_list
+```
+
+Selecciona de *sp_man_no_way_home_list* el vector que representa a los actores. Simplemente imprime este vector.
+
+``` {r actors, class.codeflow}
+sp_man_no_way_home_list[2]
+```
+
+Selecciona de *sp_man_no_way_home_list* el segundo elemento del vector que representa a los actores. Haz una impresión como la anterior.
+
+``` {r actors2, class.codeflow}
+sp_man_no_way_home_list$actors[2]
+```
+
+# Ejercicio 4. Lanzamiento de una moneda
+
+Realice 1000 simulaciones del lanzamiento de una moneda equilibrada y compruebe experimentalmente que el número de veces que aparece una cara entre el total de lanzamientos se aproxima a 1/2 conforme el número de lanzamientos crece. 
+
+::::: {.panelset}
+
+::: {.panel}
+
+[Simulación]{.panel-name}
+
+## Simulación 
+``` {r sim}
+caras <- sample(c(0, 1), 1000, replace = TRUE)
+caras <- matrix(caras, ncol = 1)
+caras <- data.frame(caras)
+
+lanzamientos <- seq(1, 1000)
+lanzamientos <- data.frame(lanzamientos)
+
+sim <- cbind(caras, lanzamientos)
+
+```
+```{r j4a, echo=FALSE}
+paged_table(sim)
+```
+
+### Número de caras obtenidas 
+``` {r heads}
+sim[, "No.Caras"] <- cumsum(sim$caras)
+```
+```{r j4b, echo=FALSE}
+paged_table(sim)
+```
+
+### Probabilidad acumulada de las caras obtenidas 
+``` {r fa}
+sim[, "Fa"] <- sim["No.Caras"] / sim$lanzamientos
+```
+```{r j4c, echo=FALSE}
+paged_table(sim)
+```
+
+:::
+
+::: {.panel}
+[Gráfica]{.panel-name .active}
+
+## Gráfica
+``` {r graph, echo=FALSE}
+graph_plot <- sim %>% ggplot(aes(y = Fa, x = lanzamientos)) + ggtitle("Probabilidad de obtener cara") + geom_line(color = "#5C8374") + geom_segment(aes(xend = 1000, yend = Fa), linetype = 2,color = "#3D246C") + geom_point(size = 2) + transition_reveal(lanzamientos) + ylim(0,1) + coord_cartesian(clip = "off") + theme(plot.title = element_text(hjust = 0.5)) 
+graph_plot
+```
+
+:::
+
+:::::
+
+**La probabilidad de obtener cara, o sello en su defecto, se equilibrará en 1/2 a medida que ocurren más lanzamientos.** Sin embargo, esto puede ser visto utilizando la media de *Fa*.
+
+``` {r mfa, echo=FALSE}
+mean(sim$Fa)
+```
+
+# Ejercicio 5. Lanzamiento de un dado 
+
+Realice 1000 simulaciones del lanzamiento de un dado equilibrado y compruebe experimentalmente que el número de veces que aparece una de las caras entre el total de lanzamientos se aproxima a 1/6 conforme el número de lanzamientos crece. 
+
+
+::::: {.panelset}
+
+::: {.panel}
+
+[Simulación]{.panel-name}
+
+## Simulación 
+``` {r simdado}
+caras1 <- sample(1:6, 1000, replace = TRUE)
+caras1 <- matrix(caras1, ncol = 1)
+caras1 <- data.frame(caras1)
+
+
+# Tomemos la cara 1 como ejemplo
+
+cara1 <- ifelse(caras1 == 1, 1, 0)
+cara1 <- data.frame(cara1)
+colnames(cara1) <- "cara1"
+
+lanzamientos <- seq(1, 1000)
+lanzamientos <- data.frame(lanzamientos)
+
+sim2 <- cbind(caras1, cara1, lanzamientos)
+
+```
+```{r j5a, echo=FALSE}
+paged_table(sim2)
+```
+
+### Número de veces que se obtuvo 1 en el dado 
+``` {r cara1}
+sim2[, "no.cara1"] <- cumsum(sim2$cara1)
+```
+```{r j5b, echo=FALSE}
+paged_table(sim2)
+```
+
+### Probabilidad acumulada
+``` {r fadados}
+sim2[, "Fa"] <- sim2["no.cara1"] / sim2$lanzamientos
+```
+```{r j5c, echo=FALSE}
+paged_table(sim2)
+```
+
+:::
+
+::: {.panel}
+[Gráfica]{.panel-name}
+
+## Gráfica 
+``` {r graphdados, echo=FALSE}
+graph_plot2 <- sim2 %>% ggplot(aes(y = sim2$Fa, x = sim2$lanzamientos)) + ggtitle("Probabilidad de obtener 1 en un dado") + geom_line(color = "#5C8374") + geom_segment(aes(xend = 1000, yend = Fa), linetype = 2,color = "#3D246C") + geom_point(size = 2) + transition_reveal(sim2$lanzamientos) + ylim(0,1) + coord_cartesian(clip = "off") + theme(plot.title = element_text(hjust = 0.5)) 
+graph_plot2
+```
+
+:::
+
+:::::
+
+**La probabilidad de obtener una cara del dado, se equilibrará en 1/6 a medida que ocurren más lanzamientos.** Sin embargo, esto puede ser visto utilizando la media de *Fa*.
+
+``` {r mfadados, echo=FALSE}
+mean(sim2$Fa)
+```
+
+
+
+
+
+
+
