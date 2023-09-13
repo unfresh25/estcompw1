@@ -1,0 +1,9 @@
+name: "week1"
+title: "Estadística computacional  Semana 1"
+output_dir: "."
+output: 
+  distill::distill_article:
+    theme: style.css
+    toc: true
+    toc_depth: 1
+    toc_float: true
